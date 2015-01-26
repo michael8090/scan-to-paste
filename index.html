@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<h1></h1>
+<textarea style="width: 400px; height: 300px;"></textarea><br>
+<input placeholder="input the peer id you want to connect"><br>
+<span id="message"></span>
+<script src="socket.io-client/socket.io.js"></script>
+<script src="jquery/dist/jquery.min.js"></script>
+<script>
+    var socket = io();
+    $('textarea').on('input', function(){
+        socket.emit('push', $(this).val());
+    });
+
+    $('input').change(function () {
+        socket.emit('connect to', $(this).val());
+    });
+
+    socket.on('connect success', function (id) {
+        $('#message').text('connected to ' +id);
+        socket.emit('push', $(this).val());
+    });
+
+    socket.on('sync', function (text) {
+        $('textarea').val(text);
+    });
+
+    socket.on('got id', function (id) {
+        $('h1').text('Id: ' + id);
+    });
+
+    socket.on('connect error', function (msg) {
+        $('#message').text('error: ' + msg);
+    });
+
+    var destId = parseInt(location.pathname.slice(1), 10);
+    if (destId) {
+        socket.emit('connect to', destId);
+    }
+
+</script>
+</body>
+</html>
